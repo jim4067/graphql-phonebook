@@ -1,4 +1,4 @@
-const { gql, ApolloServer } = require('apollo-server');
+const { gql, ApolloServer, UserInputError } = require('apollo-server');
 const { v1: uuid } = require('uuid');
 
 let persons = [
@@ -70,8 +70,16 @@ const resolvers = {
         }
     },
 
+    //getting random error of mutation returning null. Find out why?
     Mutation: {
         addPerson: (root, args) => {
+            //throw UserInputError if the name is not unique
+            if (persons.find(p => p.name === args.name)) {
+                throw new UserInputError('Name must be unique', {
+                    invalidArgs: args.name,
+                });
+            }
+
             const person = { ...args, id: uuid() };
             persons = persons.concat(person);
             return person;
