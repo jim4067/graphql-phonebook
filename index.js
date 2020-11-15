@@ -101,12 +101,12 @@ const resolvers = {
             return person;
         },
         editNumber: (root, args) => {
-            const person = persons.find((p) => p.name === args.name)
+            let person = persons.find((p) => p.name === args.name)
             if (!person) {
                 return null;
             }
 
-            const updatedPerson = { ...person, phone: args.phone };
+            let updatedPerson = { ...person, phone: args.phone };
             person = persons.map((p) => p.name === args.name ? updatedPerson : p);
             return updatedPerson;
         }
