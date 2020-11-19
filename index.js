@@ -87,6 +87,9 @@ const resolvers = {
             }
         }
     },
+    me: (root, args, context) => {
+        return context.currentUser;
+    },
 
     //getting random error of mutation returning null. Find out why?
     Mutation: {
@@ -145,6 +148,17 @@ const resolvers = {
 const server = new ApolloServer({
     typeDefs,
     resolvers,
+    // the object returned by context is given to all resolvers as their third parameter
+    context: async ({ req }) => {
+        const auth = req ? req.headers.authorization : null;
+        if (auth && auth.toLowerCase().startsWith('bearer ')) {
+            const decoded_token = jwt.verify(
+                auth.substring(7), JWT_SECRET
+            )
+            const currentUser = await (await User.findById(decoded_token.id)).populated('friends');
+            return currentUser;
+        }
+    }
 });
 
 server.listen().then(({ url }) => {
