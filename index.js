@@ -56,7 +56,10 @@ const resolvers = {
     Query: {
         personCount: () => Person.collection.countDocuments(),
         allPersons: (root, args) => {
-            return Person.find({});
+            if (!args.phone) {
+                return Person.find({});
+            }
+            return Person.find({ phone: { $exists: args.phone === 'YES' } });
         },
         findPerson: (root, args) =>
             Person.findOne({ name: args.name })
