@@ -28,38 +28,30 @@ const typeDefs = gql`
   }
 
   type User {
-      username: String!
-      friends: [Person!]!
-      id: ID!
+    username: String!
+    friends: [Person!]!
+    id: ID!
   }
 
-  type Token { 
-      value: String!
+  type Token {
+    value: String!
   }
 
   type Mutation {
-      addPerson (
-        name: String!
-        phone: String
-        street: String!
-        city: String!
-      ) : Person
-      editNumber(
-          name: String!
-          phone: String!
-      ) : Person
-      createUser(
-          username: String!
-      ) : User
-      login(
-          username: String!
-          password: String!
-      )  : Token
+    addPerson(
+      name: String!
+      phone: String
+      street: String!
+      city: String!
+    ): Person
+    editNumber(name: String!, phone: String!): Person
+    createUser(username: String!): User
+    login(username: String!, password: String!): Token
   }
 
   enum YesNo {
-      YES
-      NO
+    YES
+    NO
   }
 
   type Query {
