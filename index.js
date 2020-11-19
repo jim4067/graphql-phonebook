@@ -1,4 +1,4 @@
-const { gql, ApolloServer } = require('apollo-server');
+const { gql, ApolloServer, UserInputError } = require('apollo-server');
 const mongoose = require('mongoose');
 const Person = require('./models/person');
 
@@ -76,16 +76,30 @@ const resolvers = {
 
     //getting random error of mutation returning null. Find out why?
     Mutation: {
-        addPerson: (root, args) => {
-            addPerson: (root, args) => {
-                const person = new Person({ ...args });
-                return Person.save();
+        addPerson: async (root, args) => {
+            const person = new Person({ ...args });
+
+            try {
+                await person.save();
+            } catch (error) {
+                throw new UserInputError(error.message, {
+                    invalidArgs: args
+                })
             }
+            return person;
         },
         editNumber: async (root, args) => {
             const person = await Person.findOne({ name: args.name });
             person.phone = args.phone;
-            return person.save();
+
+            try {
+                await person.save();
+            } catch (error) {
+                throw new UserInputError(error.message, {
+                    invalidArgs: args
+                })
+            }
+            return person;
         }
     }
 }
