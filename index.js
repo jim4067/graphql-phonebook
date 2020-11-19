@@ -1,6 +1,10 @@
 const { gql, ApolloServer, UserInputError } = require('apollo-server');
+const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const Person = require('./models/person');
+const User = require('./models/user');
+
+const JWT_SECRET = 'NEED_HERE_A_SECRET_KEY';
 
 const MONGODB_URI = 'mongodb+srv://fullstack:halfstack@cluster0-ostce.mongodb.net/graphql?retryWrites=true';
 
@@ -40,7 +44,7 @@ const typeDefs = gql`
   type Mutation {
     addPerson(
       name: String!
-      phone: String
+      phone: String     
       street: String!
       city: String!
     ): Person
@@ -110,7 +114,31 @@ const resolvers = {
                 })
             }
             return person;
-        }
+        },
+        createUser: async (root, args) => {
+            const user = new User({ username: args.username });
+
+            return user.save()
+                .catch((error) => {
+                    throw new UserInputError(error.message, {
+                        args: invalidArgs
+                    })
+                })
+        },
+        login: async (root, args) => {
+            const user = await User.findOne({ username: args.username });
+
+            if (!user || args.password !== 'secred') {
+                throw new UserInputError('wrong credentials');
+            }
+
+            const userForToken = {
+                username: user.username,
+                id: user._id
+            }
+
+            return { value: jwt.sign(userForToken, JWT_SECRET) }
+        },
     }
 }
 
